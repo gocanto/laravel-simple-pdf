@@ -1,9 +1,9 @@
 {
   "license": "MIT",
-  "name": "gocanto/simple-pdf",
-  "homepage": "https://github.com/gocanto/simple-pdf",
+  "name": "gocanto/laravel-simple-pdf",
+  "homepage": "https://github.com/gocanto/laravel-simple-pdf",
   "type": "php-bundle",
-  "description": "Personal flavor packages template.",
+  "description": "Simple laravel PDF generator.",
   "minimum-stability": "dev",
   "prefer-stable": true,
   "keywords": [
@@ -18,8 +18,8 @@
     }
   ],
   "support": {
-    "source": "https://github.com/gocanto/simple-pdf",
-    "issues": "https://github.com/gocanto/simple-pdf/issues"
+    "source": "https://github.com/gocanto/laravel-simple-pdf",
+    "issues": "https://github.com/gocanto/laravel-simple-pdf/issues"
   },
   "require": {
     "php": "^7.2",
