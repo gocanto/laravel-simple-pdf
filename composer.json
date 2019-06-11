@@ -1,7 +1,7 @@
 {
   "license": "MIT",
-  "name": "gocanto/my-template",
-  "homepage": "https://github.com/gocanto/my-template",
+  "name": "gocanto/simple-pdf",
+  "homepage": "https://github.com/gocanto/simple-pdf",
   "type": "php-bundle",
   "description": "Personal flavor packages template.",
   "minimum-stability": "dev",
@@ -18,11 +18,18 @@
     }
   ],
   "support": {
-    "source": "https://github.com/gocanto/my-template",
-    "issues": "https://github.com/gocanto/my-template/issues"
+    "source": "https://github.com/gocanto/simple-pdf",
+    "issues": "https://github.com/gocanto/simple-pdf/issues"
   },
   "require": {
-    "php": "^7.2"
+    "php": "^7.2",
+    "dompdf/dompdf": "^0.8.2",
+    "guzzlehttp/guzzle": "^6.3",
+    "illuminate/contracts": "^5.8",
+    "illuminate/support": "^5.8",
+    "illuminate/view": "^5.8",
+    "psr/http-message": "^1.0",
+    "symfony/http-foundation": "^4.3"
   },
   "require-dev": {
     "phpunit/phpunit": "^8.0",
@@ -39,12 +46,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Gocanto\\MyTemplate\\": "src"
+      "Gocanto\\SimplePDF\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Gocanto\\MyTemplate\\Tests\\": "tests"
+      "Gocanto\\SimplePDF\\Tests\\": "tests"
     }
   },
   "config": {
