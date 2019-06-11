@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Gocanto Laravel-Simple-PDF package
+ * This file is part of the Laravel-Simple-PDF package
  *
  * (c) Gustavo Ocanto <gustavoocanto@gmail.com>
  *
@@ -159,7 +159,7 @@ class Pdf implements ExporterInterface
     }
 
     /**
-     * @param mixed $templateName
+     * @param string $templateName
      */
     public function setTemplateName(string $templateName): void
     {

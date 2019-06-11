@@ -8,8 +8,9 @@
   "prefer-stable": true,
   "keywords": [
     "php",
-    "packages",
-    "template"
+    "laravel",
+    "PDF",
+    "generator"
   ],
   "authors": [
     {
