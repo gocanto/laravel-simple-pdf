@@ -24,7 +24,7 @@
   },
   "require": {
     "php": "^7.2",
-    "dompdf/dompdf": "^0.8.2",
+    "dompdf/dompdf": "^0.8.3",
     "guzzlehttp/guzzle": "^6.3",
     "illuminate/contracts": "^5.8",
     "illuminate/support": "^5.8",
