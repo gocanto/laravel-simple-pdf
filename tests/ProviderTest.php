@@ -18,7 +18,6 @@ use Gocanto\SimplePDF\SimplePDFServicesProvider;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 
@@ -53,13 +52,6 @@ class ProviderTest extends TestCase
 
         $provider = new SimplePDFServicesProvider($app);
         $provider->register();
-    }
-
-    /** @test */
-    public function it_provides_the_valid_access_keys()
-    {
-        $app = $this->getAppMock();
-        $provider = new SimplePDFServicesProvider($app);
 
         $this->assertContains(Builder::class, $provider->provides());
         $this->assertCount(1, $provider->provides());
@@ -67,7 +59,7 @@ class ProviderTest extends TestCase
 
     public function getAppMock()
     {
-        $view = Mockery::mock(View::class);
+        $view = Mockery::mock(Factory::class);
         $view->shouldReceive('addNamespace')->once();
 
         $app = Mockery::mock(Container::class);
