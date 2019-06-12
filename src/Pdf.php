@@ -54,7 +54,7 @@ class Pdf implements ExporterInterface
     {
         $options = new Options;
 
-        $options->setFontCache($this->getTempPath());
+        $options->setFontCache(__DIR__ . '/../resources/views/templates/temp');
         $options->setIsRemoteEnabled(true);
         $options->setIsHtml5ParserEnabled(true);
         $options->setIsFontSubsettingEnabled(true);
@@ -63,20 +63,6 @@ class Pdf implements ExporterInterface
         $options->setFontHeightRatio(0.9);
 
         return $options;
-    }
-
-    /**
-     * @return string
-     */
-    private function getTempPath() : string
-    {
-        $path = __DIR__ . '/../resources/views/templates/temp';
-
-        if (!is_dir($path)) {
-            mkdir($path, 0755, false);
-        }
-
-        return $path;
     }
 
     /**
