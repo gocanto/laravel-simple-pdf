@@ -59,7 +59,6 @@ class Pdf implements ExporterInterface
         $options->setIsHtml5ParserEnabled(true);
         $options->setIsFontSubsettingEnabled(true);
         $options->setDefaultMediaType('print');
-        $options->setIsFontSubsettingEnabled(true);
         $options->setDpi(120);
         $options->setFontHeightRatio(0.9);
 
@@ -98,8 +97,8 @@ class Pdf implements ExporterInterface
     {
         $content = '';
 
-        foreach ($this->templates as $template) {
-            $content = $this->addTemplateContent($content, $template);
+        foreach ($this->getTemplates() as $template) {
+            $content = $content . $template;
             $content = $this->addPageBreak($content);
         }
 
@@ -119,16 +118,6 @@ class Pdf implements ExporterInterface
     }
 
     /**
-     * @param string $content
-     * @param string $voucher
-     * @return string
-     */
-    private function addTemplateContent(string $content, string $voucher): string
-    {
-        return $content . $voucher;
-    }
-
-    /**
      * @return Dompdf
      */
     public function getWriter(): Dompdf
@@ -142,5 +131,13 @@ class Pdf implements ExporterInterface
     public function setWriter(Dompdf $writer): void
     {
         $this->writer = $writer;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTemplates(): array
+    {
+        return $this->templates;
     }
 }
