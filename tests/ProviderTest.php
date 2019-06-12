@@ -24,6 +24,11 @@ use PHPUnit\Framework\TestCase;
 
 class ProviderTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Mockery::close();
+    }
+
     /** @test */
     public function it_register_the_right_builder_within_the_container()
     {
