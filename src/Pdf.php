@@ -13,53 +13,57 @@ namespace Gocanto\SimplePDF;
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
 class Pdf implements ExporterInterface
 {
     /** @var Dompdf|null */
-    protected $pdfWriter;
+    protected $writer;
     /** @var array */
-    protected $vouchers = [];
-    /** @var string */
-    protected $templateName;
-    /** @var string */
-    protected $templateTitle;
-    /** @var ViewFactory */
-    private $renderer;
+    protected $templates = [];
 
     /**
-     * @param Dompdf|null $pdfWriter
-     * @param Options|null $pdfOptions
-     * @param ViewFactory|null $renderer
+     * @param Dompdf|null $writer
+     * @param Options|null $options
      */
-    public function __construct(Dompdf $pdfWriter = null, Options $pdfOptions = null, ViewFactory $renderer = null)
+    public function __construct(Dompdf $writer = null, Options $options = null)
     {
-        if ($pdfWriter === null) {
-            $this->pdfWriter = new Dompdf;
-            $this->pdfWriter->setPaper('A4', 'portrait');
-        } else {
-            $this->pdfWriter = $pdfWriter;
-        }
+        $this->writer = $writer !== null ? $writer : $this->getDefaultWriter();
 
-        if ($pdfOptions === null) {
-            $options = new Options();
-            $options->setFontCache($this->getTempPath());
-            $options->setIsRemoteEnabled(true);
-            $options->setIsHtml5ParserEnabled(true);
-            $options->setIsFontSubsettingEnabled(true);
-            $options->setDefaultMediaType('print');
-            $options->setIsFontSubsettingEnabled(true);
-            $options->setDpi(120);
-            $options->setFontHeightRatio(0.9);
-            $this->pdfWriter->setOptions($options);
-        } else {
-            $this->pdfWriter->setOptions($pdfOptions);
-        }
+        $this->writer->setOptions(
+            $options !== null ? $options : $this->getDefaultOptions()
+        );
+    }
 
-        $this->renderer = $renderer;
+    /**
+     * @return Dompdf
+     */
+    private function getDefaultWriter() : Dompdf
+    {
+        $defaultWriter = new Dompdf;
+        $defaultWriter->setPaper('A4', 'portrait');
+
+        return $defaultWriter;
+    }
+
+    /**
+     * @return Options
+     */
+    private function getDefaultOptions(): Options
+    {
+        $options = new Options;
+
+        $options->setFontCache($this->getTempPath());
+        $options->setIsRemoteEnabled(true);
+        $options->setIsHtml5ParserEnabled(true);
+        $options->setIsFontSubsettingEnabled(true);
+        $options->setDefaultMediaType('print');
+        $options->setIsFontSubsettingEnabled(true);
+        $options->setDpi(120);
+        $options->setFontHeightRatio(0.9);
+
+        return $options;
     }
 
     /**
@@ -82,7 +86,7 @@ class Pdf implements ExporterInterface
      */
     public function addContent(string $content) : void
     {
-        $this->vouchers[] = $content;
+        $this->templates[] = $content;
     }
 
     /**
@@ -94,32 +98,22 @@ class Pdf implements ExporterInterface
     {
         $content = '';
 
-        foreach ($this->vouchers as $voucher) {
-            $content = $this->addVoucherContent($content, $voucher);
+        foreach ($this->templates as $template) {
+            $content = $this->addTemplateContent($content, $template);
             $content = $this->addPageBreak($content);
         }
 
-        if ($this->renderer !== null) {
-            $view = $this->renderer->make('simplepdf::templates.default', [
-                'pdfContent' => $content,
-                'templateName' => $this->getTemplateName(),
-                'templateTitle' => $this->getTemplateTitle(),
-            ]);
+        $this->getWriter()->loadHtml($content, 'UTF-8');
+        $this->getWriter()->render();
 
-            $content = $view->render();
-        }
-
-        $this->pdfWriter->loadHtml($content, 'UTF-8');
-        $this->pdfWriter->render();
-
-        return $stream->write($this->pdfWriter->output());
+        return $stream->write($this->getWriter()->output());
     }
 
     /**
      * @param string $content
      * @return string
      */
-    public function addPageBreak(string $content): string
+    private function addPageBreak(string $content): string
     {
         return $content . '<div class="page_break"></div>';
     }
@@ -129,7 +123,7 @@ class Pdf implements ExporterInterface
      * @param string $voucher
      * @return string
      */
-    protected function addVoucherContent(string $content, string $voucher): string
+    private function addTemplateContent(string $content, string $voucher): string
     {
         return $content . $voucher;
     }
@@ -137,48 +131,16 @@ class Pdf implements ExporterInterface
     /**
      * @return Dompdf
      */
-    public function getPdfWriter(): Dompdf
+    public function getWriter(): Dompdf
     {
-        return $this->pdfWriter;
+        return $this->writer !== null ? $this->writer : $this->getDefaultWriter();
     }
 
     /**
-     * @param ViewFactory $renderer
+     * @param Dompdf $writer
      */
-    public function setRenderer(ViewFactory $renderer): void
+    public function setWriter(Dompdf $writer): void
     {
-        $this->renderer = $renderer;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplateName(): ?string
-    {
-        return $this->templateName;
-    }
-
-    /**
-     * @param string $templateName
-     */
-    public function setTemplateName(string $templateName): void
-    {
-        $this->templateName = $templateName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTemplateTitle(): string
-    {
-        return $this->templateTitle;
-    }
-
-    /**
-     * @param string $templateTitle
-     */
-    public function setTemplateTitle(string $templateTitle): void
-    {
-        $this->templateTitle = $templateTitle;
+        $this->writer = $writer;
     }
 }
