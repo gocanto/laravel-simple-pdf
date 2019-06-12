@@ -13,6 +13,7 @@ namespace Gocanto\SimplePDF\Tests;
 
 use Gocanto\SimplePDF\Builder;
 use Gocanto\SimplePDF\ExporterInterface;
+use Gocanto\SimplePDF\TemplateContext;
 use GuzzleHttp\Psr7\Stream;
 use Illuminate\Contracts\View\Factory;
 use Mockery;
@@ -78,7 +79,7 @@ class BuilderTest extends TestCase
     /** @test */
     public function it_creates_and_renders_the_proper_pdf_file()
     {
-        $data = ['foo' => 'bar'];
+        $data = TemplateContext::make(['foo' => 'bar']);
 
         $stream = Mockery::mock(Stream::class);
         $stream->shouldReceive('rewind')->once();
@@ -87,7 +88,7 @@ class BuilderTest extends TestCase
 
         $builder = $this->builder->withStream($stream);
 
-        $this->renderer->shouldReceive('make')->once()->with('default', ['data' => $data])->andReturn('content');
+        $this->renderer->shouldReceive('make')->once()->with('default', ['context' => $data])->andReturn('content');
         $this->exporter->shouldReceive('addContent')->once()->with('content');
         $this->exporter->shouldReceive('export')->once()->with($stream);
 

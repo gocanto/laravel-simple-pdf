@@ -1,7 +1,7 @@
 <html lang="en">
 
 <head>
-    <title>{{ $templateTitle ?? '' }}</title>
+    <title>{{ $context->get('title') }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
 
@@ -94,8 +94,8 @@
     </style>
 </head>
 
-<body class="{{ $templateName ?? '' }}">
-    {!! $pdfContent !!}
+<body class="{{ $context->get('name') }}">
+    {!! $context->get('content') !!}
 </body>
 
 </html>

@@ -53,12 +53,12 @@ class Builder
     }
 
     /**
-     * @param array $data
+     * @param TemplateContext $context
      */
-    public function make(array $data) : void
+    public function make(TemplateContext $context) : void
     {
         $content = $this->render->make($this->getTemplate(), [
-            'data' => $data,
+            'context' => $context,
         ]);
 
         $this->exporter->addContent($content);
