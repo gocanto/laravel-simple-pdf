@@ -13,9 +13,12 @@ namespace Gocanto\SimplePDF\Tests;
 
 use Gocanto\SimplePDF\Builder;
 use Gocanto\SimplePDF\ExporterInterface;
+use GuzzleHttp\Psr7\Stream;
 use Illuminate\Contracts\View\Factory;
 use Mockery;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BuilderTest extends TestCase
 {
@@ -29,8 +32,8 @@ class BuilderTest extends TestCase
     protected function setUp() : void
     {
         $this->exporter = Mockery::mock(ExporterInterface::class);
-        $this->renderer = Mockery::mock(Factory::class);
-        $this->renderer->shouldReceive('addLocation');
+        $this->renderer = $this->getRendererMock();
+
         $this->builder = new Builder($this->exporter, $this->renderer);
     }
 
@@ -40,12 +43,79 @@ class BuilderTest extends TestCase
     }
 
     /** @test */
-    public function it_makes_the_proper_voucher()
+    public function it_handles_templates()
     {
-        $this->renderer->shouldReceive('make')->once()->andReturn('content');
-        $this->exporter->shouldReceive('addContent')->once();
-        $this->exporter->shouldReceive('export')->once();
+        $this->assertEquals('default', $this->builder->getTemplate());
 
-        $this->builder->make(['foo' => 'bar']);
+        $builder = $this->builder->withTemplate('foo');
+
+        $this->assertEquals('foo', $builder->getTemplate());
+        $this->assertEquals('default', $this->builder->getTemplate());
+    }
+
+    /** @test */
+    public function it_handles_headers()
+    {
+        $this->assertEquals(['Content-type' => 'application/pdf'], $this->builder->getHeaders());
+
+        $builder = $this->builder->withHeaders(['foo' => 'bar']);
+
+        $this->assertEquals(['Content-type' => 'application/pdf', 'foo' => 'bar'], $builder->getHeaders());
+        $this->assertEquals(['Content-type' => 'application/pdf'], $this->builder->getHeaders());
+    }
+
+    /** @test */
+    public function it_handles_streams()
+    {
+        $this->assertInstanceOf(StreamInterface::class, $this->builder->getStream());
+
+        $builder = $this->builder->withStream($stream = Mockery::mock(StreamInterface::class));
+
+        $this->assertSame($stream, $builder->getStream());
+        $this->assertInstanceOf(StreamInterface::class, $this->builder->getStream());
+    }
+
+    /** @test */
+    public function it_creates_and_renders_the_proper_pdf_file()
+    {
+        $data = ['foo' => 'bar'];
+
+        $stream = Mockery::mock(Stream::class);
+        $stream->shouldReceive('rewind')->once();
+        $stream->shouldReceive('getContents')->once()->andReturn('content');
+        $stream->shouldReceive('fooBar')->once()->andReturn('content');
+
+        $builder = $this->builder->withStream($stream);
+
+        $this->renderer->shouldReceive('make')->once()->with('default', ['data' => $data])->andReturn('content');
+        $this->exporter->shouldReceive('addContent')->once()->with('content');
+        $this->exporter->shouldReceive('export')->once()->with($stream);
+
+        $builder->make($data);
+
+        $response = $builder->render();
+
+        //custom callback functionality.
+        $builder->render(function (StreamInterface $stream) {
+            $this->assertNotNull($stream);
+            $stream->fooBar();
+        });
+
+        $this->assertInstanceOf(StreamedResponse::class, $response);
+        $this->assertSame($response->getStatusCode(), StreamedResponse::HTTP_OK);
+        $this->assertSame($response->headers->get('content-type'), 'application/pdf');
+
+        $response->sendContent();
+    }
+
+    private function getRendererMock()
+    {
+        $renderer = Mockery::mock(Factory::class);
+
+        $renderer->shouldReceive('addLocation')->with(Mockery::on(function ($args) {
+            return strpos($args, 'resources/views/templates') !== false;
+        }));
+
+        return $renderer;
     }
 }

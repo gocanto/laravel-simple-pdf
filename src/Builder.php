@@ -14,6 +14,7 @@ namespace Gocanto\SimplePDF;
 use GuzzleHttp\Psr7\Stream;
 use Illuminate\Contracts\View\Factory as ViewContract;
 use Illuminate\View\Factory as ViewFactory;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Builder
@@ -24,7 +25,7 @@ class Builder
     private $render;
     /** @var string */
     private $template = 'default';
-    /** @var Stream */
+    /** @var StreamInterface */
     private $stream;
     /** @var array */
     private $headers = [
@@ -39,6 +40,7 @@ class Builder
     {
         $this->exporter = $exporter;
         $this->render = $render;
+
         $this->addLocation(__DIR__ . '/../resources/views/templates');
     }
 
@@ -48,22 +50,6 @@ class Builder
     public function addLocation(string $location) : void
     {
         $this->render->addLocation($location);
-    }
-
-    /**
-     * @param string $template
-     */
-    public function setTemplate(string $template) : void
-    {
-        $this->template = $template;
-    }
-
-    /**
-     * @param array $headers
-     */
-    public function setHeaders(array $headers) : void
-    {
-        array_merge($this->headers, $headers);
     }
 
     /**
@@ -77,10 +63,10 @@ class Builder
 
         $this->exporter->addContent($content);
 
-        $this->stream = new Stream(fopen('php://temp', 'wb+'));
+        $stream = $this->getStream();
 
-        $this->exporter->export($this->stream);
-        $this->stream->rewind();
+        $this->exporter->export($stream);
+        $stream->rewind();
     }
 
     /**
@@ -99,6 +85,45 @@ class Builder
     }
 
     /**
+     * @param StreamInterface $stream
+     * @return Builder
+     */
+    public function withStream(StreamInterface $stream): Builder
+    {
+        $builder = clone $this;
+
+        $builder->stream = $stream;
+
+        return $builder;
+    }
+
+    /**
+     * @param string $template
+     * @return Builder
+     */
+    public function withTemplate(string $template): Builder
+    {
+        $builder = clone $this;
+
+        $builder->template = $template;
+
+        return $builder;
+    }
+
+    /**
+     * @param array $headers
+     * @return Builder
+     */
+    public function withHeaders(array $headers): Builder
+    {
+        $builder = clone $this;
+
+        $builder->headers = array_merge($builder->headers, $headers);
+
+        return $builder;
+    }
+
+    /**
      * @return string
      */
     public function getTemplate(): string
@@ -112,6 +137,16 @@ class Builder
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * @return StreamInterface
+     */
+    public function getStream(): StreamInterface
+    {
+        return $this->stream === null
+            ? new Stream(fopen('php://temp', 'wb+'))
+            : $this->stream;
     }
 }
 
