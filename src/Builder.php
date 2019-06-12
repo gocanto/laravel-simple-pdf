@@ -63,10 +63,10 @@ class Builder
 
         $this->exporter->addContent($content);
 
-        $stream = $this->getStream();
+        $this->stream = $this->getStream();
 
-        $this->exporter->export($stream);
-        $stream->rewind();
+        $this->exporter->export($this->stream);
+        $this->stream->rewind();
     }
 
     /**
@@ -144,9 +144,6 @@ class Builder
      */
     public function getStream(): StreamInterface
     {
-        return $this->stream === null
-            ? new Stream(fopen('php://temp', 'wb+'))
-            : $this->stream;
+        return $this->stream ?? new Stream(fopen('php://temp', 'wb+'));
     }
 }
-
