@@ -69,5 +69,12 @@
     "staged-diff": [
       "git -c diff.mnemonicprefix=false --no-pager diff -r -p -m -M --full-index --no-color --staged "
     ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Gocanto\\SimplePDF\\SimplePDFServicesProvider"
+      ]
+    }
   }
 }

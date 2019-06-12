@@ -12,6 +12,7 @@
 namespace Gocanto\SimplePDF\Tests;
 
 use Gocanto\SimplePDF\Builder;
+use Gocanto\SimplePDF\ExporterInterface;
 use Gocanto\SimplePDF\Pdf;
 use Gocanto\SimplePDF\SimplePDFServicesProvider;
 use Illuminate\Container\Container;
@@ -36,12 +37,16 @@ class ProviderTest extends TestCase
         $factory->shouldReceive('addLocation')->once();
 
         $app = $this->getAppMock();
+
         $app->shouldReceive('singleton')->once()->with(Builder::class, Mockery::on($singletonCallback));
         $app->shouldReceive('make')->once()->with(Pdf::class)->andReturn(Mockery::mock(Pdf::class));
         $app->shouldReceive('make')->once()->with(Factory::class)->andReturn($factory);
 
-        $provider = new SimplePDFServicesProvider($app);
+        $app->shouldReceive('bind')->once()->with(ExporterInterface::class, Pdf::class);
+        $app->shouldReceive('bind')->once()->with('simple.pdf.writer', ExporterInterface::class);
+        $app->shouldReceive('bind')->once()->with('simple.pdf.builder', Builder::class);
 
+        $provider = new SimplePDFServicesProvider($app);
         $provider->register();
     }
 

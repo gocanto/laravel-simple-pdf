@@ -31,6 +31,10 @@ class SimplePDFServicesProvider extends ServiceProvider
                 $this->app->make(Factory::class)
             );
         });
+
+        $this->app->bind(ExporterInterface::class, Pdf::class);
+        $this->app->bind('simple.pdf.writer', ExporterInterface::class);
+        $this->app->bind('simple.pdf.builder', Builder::class);
     }
 
     /**
