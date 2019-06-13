@@ -48,3 +48,40 @@ is the one on charge of creating the `Stream File` we will be rending on demand 
 to manipulate the given array within our blade files. [See more](https://github.com/gocanto/laravel-simple-pdf/blob/master/src/TemplateContext.php)  
 
 - Lastly, we invoke the `make` method passing in our context object and finish by returning with the `render` functionality. 
+
+## Custom template implementation
+
+This implementation is done out of the same API, but it has a bit of configuration on the top. Like so: 
+
+```php
+
+use Gocanto\SimplePDF\Builder;
+use Gocanto\SimplePDF\TemplateContext;
+
+Route::get('custom-template', function (Builder $builder) {
+
+    $context = TemplateContext::make([
+        'title' => 'foo',
+        'name' => 'bar',
+        'content' => '<h1>Some amazing content!</h1>',
+    ]);
+
+    $builder->addLocation(resource_path('views/home'));
+    $new = $builder->withTemplate('home');
+    $new->make($context);
+
+    return $new->render();
+});
+```
+
+As you can see, the first `three steps` are the same as the default implementation, so there is no need to explain further on this regard. Now, we need to clarify the differences on its 
+setup.
+
+- First of all, we tell the builder about our templates root folder by invoking the `addLocation` method. This way, we will be able to have a views root folder to keep our different templates.
+
+- Second of all, we will register the custom templates by calling the `withTemplate` method. Please, do bear in account this is an immutable method, therefore, we will have a 
+new `Builder` instance as result.
+
+- Lastly, we will call the `make` and `render` method in the same way we did with the default template above.
+
+
