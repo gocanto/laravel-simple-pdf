@@ -84,4 +84,44 @@ new `Builder` instance as result.
 
 - Lastly, we will call the `make` and `render` method in the same way we did with the default template above.
 
+## Features
+
+- Multi templates ability.
+- The state is immutable, meaning all the withers as `withStream`, `withTemplate` and `withHeaders` methods will return a new instance of the `Builder`.
+- The exported stream is expose for custom manipulations, meaning you can pass a call back to the render method to manipulate the given stream before rendering time. Like so:
+```php
+use Psr\Http\Message\StreamInterface;
+
+$new->render(function (StreamInterface $stream) {
+    //do something amazing with the stream
+    echo $stream->getContents();
+});
+```
+
+## TO DO
+
+- [ ] (Gus) Allow rendered HTML or Blades files template as part of the `TemplateContext` content field.
+- [ ] (interested?) Allow more engines like twig.
+- [ ] (interested?) Make it framework agnostic.
+
+## Contributing
+
+Please feel free to fork this package and contribute by submitting a pull request to enhance its functionality.
+
+## License
+
+The MIT License (MIT). Please see [License File](https://github.com/gocanto/laravel-simple-pdf/blob/master/LICENSE.md) for more information.
+
+
+## How can I thank you?
+Why not star the github repo and share the link for this repository on Twitter?
+
+
+Don't forget to [follow me on twitter](https://twitter.com/gocanto)!
+
+Thanks!
+
+Gustavo Ocanto.
+
+
 
