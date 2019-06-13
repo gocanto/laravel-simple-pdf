@@ -16,6 +16,7 @@ use Gocanto\SimplePDF\ExporterInterface;
 use Gocanto\SimplePDF\TemplateContext;
 use GuzzleHttp\Psr7\Stream;
 use Illuminate\Contracts\View\Factory;
+use InvalidArgumentException;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
@@ -68,12 +69,12 @@ class BuilderTest extends TestCase
     /** @test */
     public function it_handles_streams()
     {
-        $this->assertInstanceOf(StreamInterface::class, $this->builder->getStream());
+        $this->assertNull($this->builder->getStream());
 
         $builder = $this->builder->withStream($stream = Mockery::mock(StreamInterface::class));
 
         $this->assertSame($stream, $builder->getStream());
-        $this->assertInstanceOf(StreamInterface::class, $this->builder->getStream());
+        $this->assertNull($this->builder->getStream());
     }
 
     /** @test */
@@ -107,6 +108,14 @@ class BuilderTest extends TestCase
         $this->assertSame($response->headers->get('content-type'), 'application/pdf');
 
         $response->sendContent();
+    }
+
+    /** @test */
+    public function it_does_not_allow_rendering_for_invalid_streams()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->builder->render();
     }
 
     private function getRendererMock()

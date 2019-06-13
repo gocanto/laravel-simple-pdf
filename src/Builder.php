@@ -14,6 +14,7 @@ namespace Gocanto\SimplePDF;
 use GuzzleHttp\Psr7\Stream;
 use Illuminate\Contracts\View\Factory as ViewContract;
 use Illuminate\View\Factory as ViewFactory;
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -63,7 +64,7 @@ class Builder
 
         $this->exporter->addContent($content);
 
-        $this->stream = $this->getStream();
+        $this->stream = $this->stream ?? new Stream(fopen('php://temp', 'wb+'));
 
         $this->exporter->export($this->stream);
         $this->stream->rewind();
@@ -75,10 +76,14 @@ class Builder
      */
     public function render(callable $response = null) : StreamedResponse
     {
+        if ($this->getStream() === null) {
+            throw new InvalidArgumentException('The given stream is not valid. Forgot running the methods [make or withStream] method before?');
+        }
+
         $response = $response !== null
-            ? $response($this->stream)
+            ? $response($this->getStream())
             : function () {
-                echo $this->stream->getContents();
+                echo $this->getStream()->getContents();
             };
 
         return new StreamedResponse($response, StreamedResponse::HTTP_OK, $this->getHeaders());
@@ -140,10 +145,10 @@ class Builder
     }
 
     /**
-     * @return StreamInterface
+     * @return StreamInterface|null
      */
-    public function getStream(): StreamInterface
+    public function getStream(): ?StreamInterface
     {
-        return $this->stream ?? new Stream(fopen('php://temp', 'wb+'));
+        return $this->stream;
     }
 }
