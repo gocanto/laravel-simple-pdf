@@ -42,7 +42,7 @@ Route::get('default-template', function (Builder $builder) {
 ***What's going on here ?***
 
 - First of all, we imported the `Builder` and the `Template Context` objects; you can think about them as the manager to generate your PDF files. For instance, the `Builder` 
-is the one on charge of creating the `Stream File` we will be rending on demand while the another one holds the data to be display within the default template.
+is the one on charge of creating the `Stream File` we will be rendering on demand while the another one holds the data to be display within the default template.
 
 - Second of all,  we created the `TemplateContext` object with the desired data to be shown in our PDF file. The context object is a simple value object that holds some handy methods 
 to manipulate the given array within our blade files. [See more](https://github.com/gocanto/laravel-simple-pdf/blob/master/src/TemplateContext.php)  
